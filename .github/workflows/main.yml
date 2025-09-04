@@ -1,0 +1,28 @@
+name: n8n-vps
+
+on:
+  workflow_dispatch: # manually trigger only
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Start VPS session with n8n
+        run: |
+          curl -sSf https://sshx.io/get | sh -s run &
+          sleep 10
+          
+          # Install dependencies
+          sudo apt-get update
+          sudo apt-get install -y npm nodejs
+
+          # Install n8n globally
+          sudo npm install -g n8n
+
+          # Start n8n on port 5678
+          nohup n8n start --tunnel > n8n.log 2>&1 &
+          echo "✅ n8n started on https://localhost:5678 (via tunnel)"
